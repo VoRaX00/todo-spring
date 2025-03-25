@@ -3,8 +3,11 @@ package org.example.todoapp.controllers;
 import lombok.RequiredArgsConstructor;
 import org.example.todoapp.dto.JwtResponse;
 import org.example.todoapp.dto.UserLoginDto;
+import org.example.todoapp.dto.UserRegisterDto;
+import org.example.todoapp.mappers.UserMapper;
 import org.example.todoapp.services.UserService;
 import org.example.todoapp.utils.JwtTokenUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,17 +26,20 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/sign-up")
-    public void signUp() {
-
+    public ResponseEntity<?> signUp(@RequestBody UserRegisterDto userRegisterDto) {
+        var user = UserMapper.INSTANCE.toModel(userRegisterDto);
+        userService.createUser(user);
+        var link = "";
+        return new ResponseEntity<>(link, HttpStatus.CREATED);
     }
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@RequestBody UserLoginDto userLoginDto) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                userLoginDto.getUsername(), userLoginDto.getPassword())
+                userLoginDto.getEmail(), userLoginDto.getPassword())
         );
-        UserDetails userDetails = userService.loadUserByUsername(userLoginDto.getUsername());
+        UserDetails userDetails = userService.loadUserByUsername(userLoginDto.getEmail());
         String token = jwtTokenUtils.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
+        return new ResponseEntity<>(new JwtResponse(token), HttpStatus.OK);
     }
 }

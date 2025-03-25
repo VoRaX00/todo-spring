@@ -3,6 +3,7 @@ package org.example.todoapp.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.example.todoapp.models.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,12 @@ public class JwtTokenUtils {
     @Value("${jwt.lifetime}")
     private Duration lifetime;
 
+    public JwtTokenUtils(@Value("${jwt.secret}") String secret,
+                         @Value("${jwt.lifetime}") Duration lifetime) {
+        this.secret = secret;
+        this.lifetime = lifetime;
+    }
+
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         List<String> roles = userDetails.getAuthorities().stream()
@@ -29,6 +36,10 @@ public class JwtTokenUtils {
                 .toList();
 
         claims.put("roles", roles);
+
+        if (userDetails instanceof UserDetailsImpl userDetailsImpl) {
+            claims.put("email", userDetailsImpl.getEmail());
+        }
 
         Date now = new Date();
         Date expiresAt = new Date(now.getTime() + lifetime.toMillis());
@@ -45,6 +56,11 @@ public class JwtTokenUtils {
     public String getUsername(String token) {
         var claims = parseToken(token);
         return claims.getSubject();
+    }
+
+    public String getEmail(String token) {
+        var claims = parseToken(token);
+        return (String) claims.get("email");
     }
 
     public List<?> getRoles(String token) {
