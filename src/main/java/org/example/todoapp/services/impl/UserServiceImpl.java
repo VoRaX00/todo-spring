@@ -13,6 +13,7 @@ import org.example.todoapp.repositories.UserRepository;
 import org.example.todoapp.services.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     public Optional<User> findByEmail(String email) {
@@ -40,12 +42,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createUser(UserRegisterDto userRegisterDto) {
         var user = userMapper.toModel(userRegisterDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         if (userExists(user.getEmail())) {
             throw new ConflictException(String.format("User with email %s already exists", user.getEmail()));
         }
 
-        user.setRoles(List.of(roleRepository.findByName("ROLE_USER")
+        user.setRoles(List.of(roleRepository.findByName("USER")
                 .orElseThrow(() -> new InternalServerException("Role not found"))));
         userRepository.save(user);
     }
