@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class AuthExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseError handle(BadCredentialsException e) {
+    public ResponseError handle(UnauthorizedException e) {
         log.error(e.getMessage(), e);
         return new ResponseError(HttpStatus.UNAUTHORIZED, e.getMessage());
     }

@@ -57,4 +57,11 @@ public class UserServiceImpl implements UserService {
         var user = userRepository.findByEmail(email);
         return user.isPresent();
     }
+
+    @Override
+    public Long findUserIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .map(User::getId)
+            .orElseThrow(() -> new InternalServerException("User not found"));
+    }
 }
