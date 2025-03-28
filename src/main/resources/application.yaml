@@ -1,7 +1,5 @@
 server:
   port: 8686
-  servlet:
-    context-path: /api/v1
   error:
     include-message: always
     include-exception: true
@@ -24,6 +22,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+springdoc:
+  packages-to-scan: org.example.todoapp.controllers
+  api-docs:
+    enabled: true
 
 logging:
   level:

@@ -2,8 +2,10 @@ package org.example.todoapp.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.todoapp.dto.*;
 import org.example.todoapp.exceptions.ConflictException;
 import org.example.todoapp.exceptions.InternalServerException;
+import org.example.todoapp.mappers.*;
 import org.example.todoapp.models.User;
 import org.example.todoapp.models.UserDetailsImpl;
 import org.example.todoapp.repositories.RoleRepository;
@@ -21,6 +23,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserMapper userMapper;
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -35,7 +38,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUser(User user) {
+    public void createUser(UserRegisterDto userRegisterDto) {
+        var user = userMapper.toModel(userRegisterDto);
+
         if (userExists(user.getEmail())) {
             throw new ConflictException(String.format("User with email %s already exists", user.getEmail()));
         }
