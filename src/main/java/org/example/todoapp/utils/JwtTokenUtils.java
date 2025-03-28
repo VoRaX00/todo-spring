@@ -1,8 +1,6 @@
 package org.example.todoapp.utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.example.todoapp.models.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -51,6 +49,25 @@ public class JwtTokenUtils {
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
 
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token);
+            return true;
+        } catch (SignatureException e) {
+            throw new JwtException("Invalid JWT signature");
+        } catch (MalformedJwtException e) {
+            throw new JwtException("Invalid JWT token");
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("Expired JWT token");
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("Unsupported JWT token");
+        } catch (IllegalArgumentException e) {
+            throw new JwtException("Token is empty");
+        }
     }
 
     public String getUsername(String token) {
