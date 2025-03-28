@@ -15,13 +15,19 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-lock-table: todo_lock
+    database-change-log-table: todo_log
+    change-log: classpath:db/changelog.yaml
 
 springdoc:
   packages-to-scan: org.example.todoapp.controllers
