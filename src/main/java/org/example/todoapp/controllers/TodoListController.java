@@ -8,6 +8,7 @@ import org.example.todoapp.exceptions.*;
 import org.example.todoapp.mappers.*;
 import org.example.todoapp.models.*;
 import org.example.todoapp.services.*;
+import org.springframework.http.*;
 import org.springframework.security.core.context.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,17 +53,20 @@ public class TodoListController {
     }
 
     @PutMapping("/{id}")
-    public void updateList(@PathVariable Long id) {
-
+    public ResponseEntity<?> updateList(@PathVariable Long id, @RequestBody TodoList todoList) {
+        var userDetails = getAuthenticatedUser();
+        todoList.setId(id);
+        listService.update(todoList, userDetails.getId());
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{id}/items")
-    public void addItem(@PathVariable Long id) {
-
-    }
-
-    @GetMapping("/{id}/items")
-    public List<Item> getItemsByList(@PathVariable Long id) {
-        return null;
-    }
+//    @PostMapping("/{id}/items")
+//    public void addItem(@PathVariable Long id) {
+//        var userDetails = getAuthenticatedUser();
+//    }
+//
+//    @GetMapping("/{id}/items")
+//    public List<Item> getItemsByList(@PathVariable Long id) {
+//        return null;
+//    }
 }
