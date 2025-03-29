@@ -37,6 +37,7 @@ public class JwtTokenUtils {
 
         if (userDetails instanceof UserDetailsImpl userDetailsImpl) {
             claims.put("email", userDetailsImpl.getEmail());
+            claims.put("userId", userDetailsImpl.getId());
         }
 
         Date now = new Date();
@@ -48,7 +49,6 @@ public class JwtTokenUtils {
                 .setIssuedAt(now)
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
-
     }
 
     public boolean validateToken(String token) {
@@ -70,17 +70,17 @@ public class JwtTokenUtils {
         }
     }
 
-    public String getUsername(String token) {
-        var claims = parseToken(token);
-        return claims.getSubject();
-    }
-
     public String getEmail(String token) {
         var claims = parseToken(token);
         return (String) claims.get("email");
     }
 
-    public List<?> getRoles(String token) {
+    public Long getUserId (String token) {
+        var claims = parseToken(token);
+        return (Long) claims.get("userId");
+    }
+
+    public List<String> getRoles(String token) {
         var claims = parseToken(token);
         return claims.get("roles", List.class);
     }
