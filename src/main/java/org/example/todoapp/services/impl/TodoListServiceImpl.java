@@ -13,7 +13,9 @@ public class TodoListServiceImpl implements TodoListService {
 
     @Override
     public Long save(TodoList todoList) {
-        return null;
+        return todoListRepository
+            .save(todoList)
+            .getId();
     }
 
 }
