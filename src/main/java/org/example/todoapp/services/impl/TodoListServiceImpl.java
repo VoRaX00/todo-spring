@@ -25,4 +25,9 @@ public class TodoListServiceImpl implements TodoListService {
         return todoListRepository.findByUserId(userId);
     }
 
+    @Override
+    public TodoList findByIdAndUserId(Long id, Long userId) {
+        return todoListRepository.findTodoListByIdAndUserId(id, userId);
+    }
+
 }
