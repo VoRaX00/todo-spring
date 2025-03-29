@@ -45,8 +45,10 @@ public class TodoListController {
     }
 
     @GetMapping("/{id}")
-    public TodoList getById(@PathVariable Long id) {
-        return null;
+    public TodoListGetDto findById(@PathVariable Long id) {
+        var userDetails = getAuthenticatedUser();
+        var list = listService.findByIdAndUserId(id, userDetails.getId());
+        return todoListMapper.toGetDto(list);
     }
 
     @PutMapping("/{id}")
