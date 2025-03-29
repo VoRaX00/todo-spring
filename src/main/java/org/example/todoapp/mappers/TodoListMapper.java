@@ -7,4 +7,5 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface TodoListMapper {
     TodoList toModel(TodoListCreateDto listCreateDto);
+    TodoListGetDto toGetDto(TodoList todoList);
 }

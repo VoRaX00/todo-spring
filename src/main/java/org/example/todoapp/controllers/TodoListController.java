@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TodoListController {
     private final TodoListService listService;
-    private final TodoListMapper listMapper;
 
     private final TodoListMapper todoListMapper;
 
@@ -37,8 +36,12 @@ public class TodoListController {
     }
 
     @GetMapping
-    public List<TodoList> getTodoLists(){
-        return null;
+    public List<TodoListGetDto> findByUserId(){
+        var userDetails = getAuthenticatedUser();
+        var lists = listService.findByUserId(userDetails.getId());
+        return lists.stream()
+            .map(todoListMapper::toGetDto)
+            .toList();
     }
 
     @GetMapping("/{id}")
