@@ -23,4 +23,24 @@ public class ItemServiceImpl implements ItemService {
         throw new NotFoundException("Item not found");
     }
 
+    @Override
+    public void saveItem(Item item, Long userId) {
+        var found = itemRepository.findById(item.getId())
+            .orElseThrow(() -> new NotFoundException("Item not found"));
+        if (!found.getList().getUser().getId().equals(userId)) {
+            throw new NotFoundException("Item not found");
+        }
+        itemRepository.save(item);
+    }
+
+    @Override
+    public void deleteItem(Long id, Long userId) {
+        var found = itemRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Item not found"));
+        if (!found.getList().getUser().getId().equals(userId)) {
+            throw new NotFoundException("Item not found");
+        }
+        itemRepository.delete(found);
+    }
+
 }

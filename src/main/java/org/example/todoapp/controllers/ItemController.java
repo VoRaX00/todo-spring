@@ -6,6 +6,7 @@ import org.example.todoapp.exceptions.*;
 import org.example.todoapp.mappers.*;
 import org.example.todoapp.models.*;
 import org.example.todoapp.services.*;
+import org.springframework.http.*;
 import org.springframework.security.core.context.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class ItemController {
 
     private final ItemService itemService;
-
-    private final UserService userService;
 
     private final ItemMapper itemMapper;
 
@@ -31,21 +30,22 @@ public class ItemController {
     @GetMapping("/{id}")
     public ItemGetDto getItem(@PathVariable Long id) {
         var user = getAuthenticatedUser();
-        var email = user.getEmail();
-        var userId = userService.findUserIdByEmail(email);
-        var item = itemService.getItemById(id, userId);
-
+        var item = itemService.getItemById(id, user.getId());
         return itemMapper.toItemGetDto(item);
     }
 
     @PutMapping("/{id}")
-    public Item updateItem(@PathVariable Long id, @RequestBody Item item) {
-        return null;
+    public ResponseEntity<?> updateItem(@PathVariable Long id, @RequestBody Item item) {
+        var user = getAuthenticatedUser();
+        itemService.saveItem(item, user.getId());
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteItem(@PathVariable Long id) {
-
+    public ResponseEntity<?> deleteItem(@PathVariable Long id) {
+        var user = getAuthenticatedUser();
+        itemService.deleteItem(id, user.getId());
+        return ResponseEntity.ok().build();
     }
 
 }
