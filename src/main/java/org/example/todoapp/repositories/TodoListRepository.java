@@ -9,5 +9,5 @@ import org.springframework.stereotype.*;
 @Repository
 public interface TodoListRepository extends JpaRepository<TodoList, Long> {
     List<TodoList> findByUserId(Long userId);
-    Optional<TodoList> findTodoListByIdAndUserId(Long id, Long userId);
+    Optional<TodoList> findByIdAndUserId(Long id, Long userId);
 }

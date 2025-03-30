@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/lists")
 @RequiredArgsConstructor
 public class TodoListController {
+
     private final TodoListService listService;
 
     private final TodoListMapper todoListMapper;
+
+    private final ItemMapper itemMapper;
 
     private UserDetailsImpl getAuthenticatedUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -29,7 +32,7 @@ public class TodoListController {
     }
 
     @PostMapping
-    public Long createList(@RequestBody TodoListCreateDto listCreateDto){
+    public Long createList(@RequestBody TodoListCreateDto listCreateDto) {
         var userDetails = getAuthenticatedUser();
         var todoList = todoListMapper.toModel(listCreateDto);
         todoList.setUser(User.builder().id(userDetails.getId()).build());
@@ -37,7 +40,7 @@ public class TodoListController {
     }
 
     @GetMapping
-    public List<TodoListGetDto> findByUserId(){
+    public List<TodoListGetDto> findByUserId() {
         var userDetails = getAuthenticatedUser();
         var lists = listService.findByUserId(userDetails.getId());
         return lists.stream()
@@ -60,11 +63,16 @@ public class TodoListController {
         return ResponseEntity.ok().build();
     }
 
-//    @PostMapping("/{id}/items")
-//    public void addItem(@PathVariable Long id) {
-//        var userDetails = getAuthenticatedUser();
-//    }
-//
+    @PostMapping("/{id}/items")
+    public ResponseEntity<?> addItem(@PathVariable Long id, @RequestBody ItemCreateDto itemCreateDto) {
+        var userDetails = getAuthenticatedUser();
+        var item = itemMapper.toModel(itemCreateDto);
+        item.setList(TodoList.builder()
+            .id(id).build());
+        listService.addItem(item, userDetails.getId());
+        return ResponseEntity.ok().build();
+    }
+
 //    @GetMapping("/{id}/items")
 //    public List<Item> getItemsByList(@PathVariable Long id) {
 //        return null;
