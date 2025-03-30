@@ -37,8 +37,13 @@ public class ItemController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateItem(@PathVariable Long id, @RequestBody Item item) {
+    public ResponseEntity<?> updateItem(
+        @PathVariable Long id,
+        @RequestBody ItemUpdateDto itemUpdateDto
+    ) {
         var user = getAuthenticatedUser();
+        var item = itemMapper.toModel(itemUpdateDto);
+        item.setId(id);
         itemService.saveItem(item, user.getId());
         return ResponseEntity.ok().build();
     }
