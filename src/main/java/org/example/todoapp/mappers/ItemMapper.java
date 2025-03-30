@@ -6,6 +6,10 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
+
     ItemGetDto toItemGetDto(Item item);
+
     Item toModel(ItemCreateDto itemCreateDto);
+
+    Item toModel(ItemUpdateDto itemUpdateDto);
 }
