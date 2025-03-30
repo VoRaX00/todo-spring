@@ -10,4 +10,5 @@ public interface TodoListService {
     TodoList findByIdAndUserId(Long id, Long userId);
     void update(TodoList todoList, Long userId);
     void addItem(Item item, Long userId);
+    List<Item> getItems(Long id, Long userId);
 }
