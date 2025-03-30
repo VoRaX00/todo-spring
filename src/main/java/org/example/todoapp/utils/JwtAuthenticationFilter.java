@@ -5,6 +5,8 @@ import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.*;
+import lombok.extern.slf4j.*;
+import org.apache.commons.lang3.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.context.*;
 import org.springframework.security.core.userdetails.*;
@@ -13,7 +15,8 @@ import org.springframework.web.filter.*;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter  extends OncePerRequestFilter {
+@Slf4j
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtils;
     private final UserDetailsService userDetailsService;
 
@@ -21,8 +24,11 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        log.info("JWT Authentication Filter");
         String token = request.getHeader("Authorization");
+        log.info("Jwt token: {}", token);
         if (token != null && token.startsWith("Bearer ")) {
+            token = StringUtils.substringAfter(token, "Bearer ");
             var email = jwtTokenUtils.getEmail(token);
             var userDetails = userDetailsService.loadUserByUsername(email);
 

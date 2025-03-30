@@ -4,8 +4,8 @@ import java.util.*;
 
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.*;
+import io.swagger.v3.oas.models.security.*;
 import io.swagger.v3.oas.models.servers.*;
-import org.springdoc.core.models.*;
 import org.springframework.context.annotation.*;
 
 @Configuration
@@ -23,6 +23,12 @@ public class SwaggerConfig {
                     .title("Todo app API")
                     .description("API для To do приложения")
                     .version("1.0")
-            );
+            )
+            .addSecurityItem(new SecurityRequirement().addList("BearerAuth"))
+            .components(new Components()
+                .addSecuritySchemes("BearerAuth", new SecurityScheme()
+                    .type(SecurityScheme.Type.HTTP)
+                    .scheme("bearer")
+                    .bearerFormat("JWT")));
     }
 }
