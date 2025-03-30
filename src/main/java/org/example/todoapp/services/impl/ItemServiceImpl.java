@@ -30,7 +30,11 @@ public class ItemServiceImpl implements ItemService {
         if (!found.getList().getUser().getId().equals(userId)) {
             throw new NotFoundException("Item not found");
         }
-        itemRepository.save(item);
+
+        found.setTitle(item.getTitle());
+        found.setDescription(item.getDescription());
+        found.setDone(item.getDone());
+        itemRepository.save(found);
     }
 
     @Override
