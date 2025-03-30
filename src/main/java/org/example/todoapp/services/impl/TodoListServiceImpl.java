@@ -19,16 +19,13 @@ public class TodoListServiceImpl implements TodoListService {
 
     @Override
     public Long save(TodoList todoList) {
-        var exists = todoListRepository.findByIdAndUserId(
+        var exists = todoListRepository.existsByIdAndUserId(
             todoList.getId(),
             todoList.getUser().getId());
-
-        if (exists.isEmpty()) {
-            return todoListRepository
-                .save(todoList)
-                .getId();
+        if (exists) {
+            throw new ConflictException("Todo list already exists");
         }
-        throw new ConflictException("Todo list already exists");
+        return todoListRepository.save(todoList).getId();
     }
 
     @Override
@@ -44,20 +41,27 @@ public class TodoListServiceImpl implements TodoListService {
 
     @Override
     public void update(TodoList todoList, Long userId) {
-        var existingTodoList = todoListRepository.findByIdAndUserId(todoList.getId(), userId)
-            .orElseThrow(() -> new NotFoundException("Todo list not found"));
-
-        existingTodoList.setTitle(todoList.getTitle());
-        existingTodoList.setDescription(todoList.getDescription());
+        var existingTodoList = findByIdAndUserId(todoList.getId(), userId);
+        updateTodoList(existingTodoList, todoList);
         todoListRepository.save(existingTodoList);
+    }
+
+    public void updateTodoList(TodoList existingList, TodoList newList) {
+        existingList.setTitle(newList.getTitle());
+        existingList.setDescription(newList.getDescription());
     }
 
     @Override
     public void addItem(Item item, Long userId) {
-        var existingTodoList = todoListRepository.findByIdAndUserId(item.getList().getId(), userId)
-            .orElseThrow(() -> new NotFoundException("Todo list not found"));
-        item.setList(existingTodoList);
+        item.setList(
+            findByIdAndUserId(item.getList().getId(), userId));
         itemRepository.save(item);
+    }
+
+    @Override
+    public List<Item> getItems(Long id, Long userId) {
+        findByIdAndUserId(id, userId);
+        return itemRepository.getItemsByListId(id);
     }
 
 }

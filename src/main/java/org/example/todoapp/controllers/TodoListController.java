@@ -70,11 +70,15 @@ public class TodoListController {
         item.setList(TodoList.builder()
             .id(id).build());
         listService.addItem(item, userDetails.getId());
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-//    @GetMapping("/{id}/items")
-//    public List<Item> getItemsByList(@PathVariable Long id) {
-//        return null;
-//    }
+    @GetMapping("/{id}/items")
+    public List<ItemGetDto> getItemsByList(@PathVariable Long id) {
+        var userDetails = getAuthenticatedUser();
+        var items = listService.getItems(id, userDetails.getId());
+        return items.stream()
+            .map(itemMapper::toItemGetDto)
+            .toList();
+    }
 }

@@ -10,4 +10,5 @@ import org.springframework.stereotype.*;
 public interface TodoListRepository extends JpaRepository<TodoList, Long> {
     List<TodoList> findByUserId(Long userId);
     Optional<TodoList> findByIdAndUserId(Long id, Long userId);
+    Boolean existsByIdAndUserId(Long id, Long userId);
 }
