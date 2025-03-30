@@ -19,12 +19,6 @@ public class TodoListServiceImpl implements TodoListService {
 
     @Override
     public Long save(TodoList todoList) {
-        var exists = todoListRepository.existsByIdAndUserId(
-            todoList.getId(),
-            todoList.getUser().getId());
-        if (exists) {
-            throw new ConflictException("Todo list already exists");
-        }
         return todoListRepository.save(todoList).getId();
     }
 
