@@ -2,6 +2,7 @@ package org.example.todoapp.controllers;
 
 import java.util.*;
 
+import io.swagger.v3.oas.annotations.security.*;
 import lombok.*;
 import org.example.todoapp.dto.*;
 import org.example.todoapp.exceptions.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/lists")
+@SecurityRequirement(name = "BearerAuth")
 @RequiredArgsConstructor
 public class TodoListController {
 
@@ -56,15 +58,22 @@ public class TodoListController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateList(@PathVariable Long id, @RequestBody TodoList todoList) {
+    public ResponseEntity<?> updateList(
+        @PathVariable Long id,
+        @RequestBody TodoListUpdateDto todoListUpdateDto
+    ) {
         var userDetails = getAuthenticatedUser();
+        var todoList = todoListMapper.toModel(todoListUpdateDto);
         todoList.setId(id);
         listService.update(todoList, userDetails.getId());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/items")
-    public ResponseEntity<?> addItem(@PathVariable Long id, @RequestBody ItemCreateDto itemCreateDto) {
+    public ResponseEntity<?> addItem(
+        @PathVariable Long id,
+        @RequestBody ItemCreateDto itemCreateDto
+    ) {
         var userDetails = getAuthenticatedUser();
         var item = itemMapper.toModel(itemCreateDto);
         item.setList(TodoList.builder()
@@ -81,4 +90,5 @@ public class TodoListController {
             .map(itemMapper::toItemGetDto)
             .toList();
     }
+
 }
