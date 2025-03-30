@@ -1,5 +1,6 @@
 package org.example.todoapp.controllers;
 
+import io.swagger.v3.oas.annotations.security.*;
 import lombok.*;
 import org.example.todoapp.dto.*;
 import org.example.todoapp.exceptions.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@SecurityRequirement(name = "BearerAuth")
 @RequestMapping("/items")
 public class ItemController {
 
