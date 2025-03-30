@@ -44,6 +44,7 @@ public class SecurityConfig {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")))
                 .accessDeniedHandler(((request, response, authException) ->
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden"))))
+            .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
