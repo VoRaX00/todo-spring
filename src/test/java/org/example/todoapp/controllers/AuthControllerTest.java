@@ -1,53 +1,44 @@
 package org.example.todoapp.controllers;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.datatype.jsr310.*;
 import org.example.todoapp.dto.*;
 import org.example.todoapp.exceptions.BadCredentialsException;
 import org.example.todoapp.services.*;
 import org.example.todoapp.utils.*;
-import org.mockito.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.autoconfigure.web.servlet.*;
+import org.springframework.boot.test.context.*;
+import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.http.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.test.web.servlet.*;
-import org.springframework.test.web.servlet.setup.*;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
 
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@ExtendWith(MockitoExtension.class)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class AuthControllerTest {
 
-    @Mock
+    @MockBean
     private UserService userService;
 
-    @Mock
-    private JwtTokenUtils jwtTokenUtils;
+    @Autowired
+    private ObjectMapper mapper;
 
-    @Mock
-    private AuthenticationManager authenticationManager;
-
-    @InjectMocks
-    private AuthController authController;
-
+    @Autowired
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper;
+    @MockBean
+    private JwtTokenUtils jwtTokenUtils;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-    }
+    @MockBean
+    private AuthenticationManager authenticationManager;
+
 
     @Test
     void singUp_ShouldReturnCreateStatus() throws Exception {
@@ -58,9 +49,12 @@ public class AuthControllerTest {
         );
 
         doNothing().when(userService).createUser(userRegisterDto);
-        ResponseEntity<?> response = authController.signUp(userRegisterDto);
+        mockMvc.perform(post("/auth/sign-up")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(mapper.writeValueAsString(userRegisterDto)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$").value("http://example.com"));
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         verify(userService, times(1)).createUser(userRegisterDto);
     }
 
@@ -76,11 +70,12 @@ public class AuthControllerTest {
         when(userService.loadUserByUsername(loginDto.getEmail())).thenReturn(userDetails);
         when(jwtTokenUtils.generateToken(userDetails)).thenReturn(expectedToken);
 
-        ResponseEntity<?> response = authController.signIn(loginDto);
+        mockMvc.perform(post("/auth/sign-in")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(mapper.writeValueAsString(loginDto)))
+            .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value(expectedToken));
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertInstanceOf(JwtResponse.class, response.getBody());
-        assertEquals(expectedToken, ((JwtResponse) response.getBody()).getToken());
         verify(userService, times(1)).loadUserByUsername(loginDto.getEmail());
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtTokenUtils).generateToken(userDetails);
@@ -96,7 +91,10 @@ public class AuthControllerTest {
         when(authenticationManager.authenticate(any()))
             .thenThrow(new BadCredentialsException("Bad Credentials"));
 
-        assertThrows(BadCredentialsException.class, () -> authController.signIn(loginDto));
+        mockMvc.perform(post("/auth/sign-in")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(mapper.writeValueAsString(loginDto)))
+            .andExpect(status().isBadRequest());
     }
 
 }
