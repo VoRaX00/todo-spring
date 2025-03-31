@@ -28,7 +28,7 @@ public class AuthController {
     @Operation(summary = "Регистрация пользователя в приложении")
     public ResponseEntity<?> signUp(@RequestBody UserRegisterDto userRegisterDto) {
         userService.createUser(userRegisterDto);
-        var link = "";
+        var link = "http://example.com";
         return new ResponseEntity<>(link, HttpStatus.CREATED);
     }
 
