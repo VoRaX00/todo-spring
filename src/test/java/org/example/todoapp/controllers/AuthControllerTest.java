@@ -95,6 +95,8 @@ public class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(mapper.writeValueAsString(loginDto)))
             .andExpect(status().isBadRequest());
+
+        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
 }
