@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import org.example.todoapp.dto.*;
+import org.example.todoapp.exceptions.*;
 import org.example.todoapp.mappers.*;
 import org.example.todoapp.models.*;
 import org.example.todoapp.services.*;
@@ -15,8 +16,6 @@ import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.authority.*;
 import org.springframework.security.core.context.*;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.test.context.support.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
 
@@ -25,7 +24,6 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.*;
 
-//
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ItemControllerTest {
@@ -94,17 +92,44 @@ public class ItemControllerTest {
         when(itemService.getItemById(itemId, userId)).thenReturn(item);
         when(itemMapper.toItemGetDto(item)).thenReturn(itemGetDto);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(String.format(
-                "/items/%s",
-                itemId))
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format(
+                    "/items/%s",
+                    itemId))
                 .header("Authorization", "Bearer " + token))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(itemId))
             .andExpect(jsonPath("$.title").value("test-title"))
             .andExpect(jsonPath("$.description").value("test-description"))
-            .andExpect(jsonPath("$.done").value(false))
-            .andReturn();
-        System.out.println(result.getResponse().getContentAsString());
+            .andExpect(jsonPath("$.done").value(false));
+    }
+
+    @Test
+    void getItem_NotFound() throws Exception {
+        var userDetails = new UserDetailsImpl(
+            userId, "testUser", "test@example.com", "1324",
+            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        when(userService.loadUserByUsername("test@example.com")).thenReturn(userDetails);
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
+        );
+
+        var token = jwtTokenUtils.generateToken(userDetails);
+        when(itemService.getItemById(itemId, userId)).thenThrow(new NotFoundException("Not found"));
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format(
+                    "/items/%s",
+                    itemId))
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getItem_Unauthorized() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format(
+                "/items/%s",
+                itemId)))
+            .andExpect(status().isUnauthorized());
     }
 
 }
