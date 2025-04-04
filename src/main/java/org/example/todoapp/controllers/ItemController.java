@@ -35,8 +35,7 @@ public class ItemController {
     public ResponseEntity<?> getItem(@PathVariable Long id) {
         var user = getAuthenticatedUser();
         var item = itemService.getItemById(id, user.getId());
-        var dto = itemMapper.toItemGetDto(item);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(itemMapper.toItemGetDto(item));
     }
 
     @PutMapping("/{id}")
