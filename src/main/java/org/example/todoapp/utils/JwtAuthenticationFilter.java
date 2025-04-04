@@ -7,6 +7,7 @@ import jakarta.servlet.http.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 import org.apache.commons.lang3.*;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.context.*;
 import org.springframework.security.core.userdetails.*;
@@ -18,6 +19,7 @@ import org.springframework.web.filter.*;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtils;
+
     private final UserDetailsService userDetailsService;
 
     @Override

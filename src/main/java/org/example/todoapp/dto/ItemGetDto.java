@@ -2,7 +2,10 @@ package org.example.todoapp.dto;
 
 import lombok.*;
 
+@Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemGetDto {
     private Long id;
     private String title;
