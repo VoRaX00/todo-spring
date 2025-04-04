@@ -8,7 +8,6 @@ import org.example.todoapp.exceptions.*;
 import org.example.todoapp.mappers.*;
 import org.example.todoapp.models.*;
 import org.example.todoapp.services.*;
-import org.example.todoapp.utils.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.*;
 import org.springframework.boot.test.context.*;
@@ -38,12 +37,6 @@ public class ItemControllerTest {
 
     @MockBean
     private ItemMapper itemMapper;
-
-    @Autowired
-    private JwtTokenUtils jwtTokenUtils;
-
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
     private ObjectMapper objectMapper;
