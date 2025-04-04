@@ -39,7 +39,6 @@ public class AuthControllerTest {
     @MockBean
     private AuthenticationManager authenticationManager;
 
-
     @Test
     void singUp_ShouldReturnCreateStatus() throws Exception {
         var userRegisterDto = new UserRegisterDto(
@@ -50,8 +49,8 @@ public class AuthControllerTest {
 
         doNothing().when(userService).createUser(userRegisterDto);
         mockMvc.perform(post("/auth/sign-up")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(userRegisterDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(userRegisterDto)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$").value("http://example.com"));
 
@@ -71,10 +70,10 @@ public class AuthControllerTest {
         when(jwtTokenUtils.generateToken(userDetails)).thenReturn(expectedToken);
 
         mockMvc.perform(post("/auth/sign-in")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(loginDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(loginDto)))
             .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value(expectedToken));
+            .andExpect(jsonPath("$.token").value(expectedToken));
 
         verify(userService, times(1)).loadUserByUsername(loginDto.getEmail());
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
@@ -92,11 +91,13 @@ public class AuthControllerTest {
             .thenThrow(new BadCredentialsException("Bad Credentials"));
 
         mockMvc.perform(post("/auth/sign-in")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(loginDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(loginDto)))
             .andExpect(status().isBadRequest());
 
-        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(
+            authenticationManager,
+            times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
 }

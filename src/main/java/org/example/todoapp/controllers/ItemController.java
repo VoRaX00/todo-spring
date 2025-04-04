@@ -2,6 +2,7 @@ package org.example.todoapp.controllers;
 
 import io.swagger.v3.oas.annotations.security.*;
 import lombok.*;
+import lombok.extern.slf4j.*;
 import org.example.todoapp.dto.*;
 import org.example.todoapp.exceptions.*;
 import org.example.todoapp.mappers.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "BearerAuth")
 @RequestMapping("/items")
+@Slf4j
 public class ItemController {
 
     private final ItemService itemService;
@@ -30,10 +32,11 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemGetDto getItem(@PathVariable Long id) {
+    public ResponseEntity<?> getItem(@PathVariable Long id) {
         var user = getAuthenticatedUser();
         var item = itemService.getItemById(id, user.getId());
-        return itemMapper.toItemGetDto(item);
+        var dto = itemMapper.toItemGetDto(item);
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}")
