@@ -80,17 +80,15 @@ public class ItemControllerTest {
     void getItem_Success() throws Exception {
         var userDetails = new UserDetailsImpl(
             userId, "testUser", "test@example.com", "1324",
-            List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
-
+            List.of(new SimpleGrantedAuthority("ROLE_USER")));
         setUserDetailForAuthentication(userDetails);
 
         when(itemService.getItemById(itemId, userId)).thenReturn(item);
         when(itemMapper.toItemGetDto(item)).thenReturn(itemGetDto);
 
         mockMvc.perform(MockMvcRequestBuilders.get(String.format(
-                    "/items/%s",
-                    itemId)))
+                "/items/%s",
+                itemId)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(itemId))
             .andExpect(jsonPath("$.title").value("test-title"))
@@ -102,14 +100,13 @@ public class ItemControllerTest {
     void getItem_NotFound() throws Exception {
         var userDetails = new UserDetailsImpl(
             userId, "testUser", "test@example.com", "1324",
-            List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+            List.of(new SimpleGrantedAuthority("ROLE_USER")));
         setUserDetailForAuthentication(userDetails);
 
         when(itemService.getItemById(itemId, userId)).thenThrow(new NotFoundException("Not found"));
         mockMvc.perform(MockMvcRequestBuilders.get(String.format(
-                    "/items/%s",
-                    itemId)))
+                "/items/%s",
+                itemId)))
             .andExpect(status().isNotFound());
     }
 
@@ -125,8 +122,7 @@ public class ItemControllerTest {
     void updateItem_Success() throws Exception {
         var userDetails = new UserDetailsImpl(
             userId, "testUser", "test@example.com", "1324",
-            List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+            List.of(new SimpleGrantedAuthority("ROLE_USER")));
         setUserDetailForAuthentication(userDetails);
 
         when(itemMapper.toModel(itemUpdateDto)).thenReturn(itemUpdated);
@@ -142,10 +138,9 @@ public class ItemControllerTest {
     void updateItem_NotFound() throws Exception {
         var userDetails = new UserDetailsImpl(
             userId, "testUser", "test@example.com", "1324",
-            List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
-
+            List.of(new SimpleGrantedAuthority("ROLE_USER")));
         setUserDetailForAuthentication(userDetails);
+
         when(itemMapper.toModel(itemUpdateDto)).thenReturn(itemUpdated);
         doThrow(new NotFoundException("Not found")).when(itemService).saveItem(itemUpdated, userId);
         mockMvc.perform(MockMvcRequestBuilders
@@ -169,8 +164,7 @@ public class ItemControllerTest {
     void deleteItem_Success() throws Exception {
         var userDetails = new UserDetailsImpl(
             userId, "testUser", "test@example.com", "1324",
-            List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+            List.of(new SimpleGrantedAuthority("ROLE_USER")));
         setUserDetailForAuthentication(userDetails);
 
         doNothing().when(itemService).deleteItem(itemId, userId);
@@ -183,9 +177,9 @@ public class ItemControllerTest {
     void deleteItem_NotFound() throws Exception {
         var userDetails = new UserDetailsImpl(
             userId, "testUser", "test@example.com", "1324",
-            List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+            List.of(new SimpleGrantedAuthority("ROLE_USER")));
         setUserDetailForAuthentication(userDetails);
+
         doThrow(new NotFoundException("Not found")).when(itemService).deleteItem(itemId, userId);
         mockMvc.perform(MockMvcRequestBuilders
                 .delete(String.format("/items/%s", itemId)))
