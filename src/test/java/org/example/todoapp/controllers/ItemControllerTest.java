@@ -86,9 +86,8 @@ public class ItemControllerTest {
         when(itemService.getItemById(itemId, userId)).thenReturn(item);
         when(itemMapper.toItemGetDto(item)).thenReturn(itemGetDto);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format(
-                "/items/%s",
-                itemId)))
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                "/items/{id}", itemId))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(itemId))
             .andExpect(jsonPath("$.title").value("test-title"))
@@ -104,17 +103,15 @@ public class ItemControllerTest {
         setUserDetailForAuthentication(userDetails);
 
         when(itemService.getItemById(itemId, userId)).thenThrow(new NotFoundException("Not found"));
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format(
-                "/items/%s",
-                itemId)))
+        mockMvc.perform(MockMvcRequestBuilders.get(
+            "/items/{id}", itemId))
             .andExpect(status().isNotFound());
     }
 
     @Test
     void getItem_Unauthorized() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format(
-                "/items/%s",
-                itemId)))
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                "/items/{id}", itemId))
             .andExpect(status().isUnauthorized());
     }
 
@@ -128,7 +125,7 @@ public class ItemControllerTest {
         when(itemMapper.toModel(itemUpdateDto)).thenReturn(itemUpdated);
         doNothing().when(itemService).saveItem(itemUpdated, userId);
         mockMvc.perform(MockMvcRequestBuilders
-                .put(String.format("/items/%s", itemUpdated.getId()))
+                .put("/items/{id}", itemUpdated.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(itemUpdateDto)))
             .andExpect(status().isOk());
@@ -144,7 +141,7 @@ public class ItemControllerTest {
         when(itemMapper.toModel(itemUpdateDto)).thenReturn(itemUpdated);
         doThrow(new NotFoundException("Not found")).when(itemService).saveItem(itemUpdated, userId);
         mockMvc.perform(MockMvcRequestBuilders
-                .put(String.format("/items/%s", itemUpdated.getId()))
+                .put("/items/{id}", itemUpdated.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(itemUpdateDto)))
             .andExpect(status().isNotFound());
@@ -154,7 +151,7 @@ public class ItemControllerTest {
     @Test
     void updateItem_Unauthorized() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .put(String.format("/items/%s", itemUpdated.getId()))
+                .put("/items/{id}", itemUpdated.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(itemUpdateDto)))
             .andExpect(status().isUnauthorized());
@@ -169,7 +166,7 @@ public class ItemControllerTest {
 
         doNothing().when(itemService).deleteItem(itemId, userId);
         mockMvc.perform(MockMvcRequestBuilders
-                .delete(String.format("/items/%s", itemId)))
+                .delete("/items/{id}", itemId))
             .andExpect(status().isOk());
     }
 
@@ -182,14 +179,14 @@ public class ItemControllerTest {
 
         doThrow(new NotFoundException("Not found")).when(itemService).deleteItem(itemId, userId);
         mockMvc.perform(MockMvcRequestBuilders
-                .delete(String.format("/items/%s", itemId)))
+                .delete("/items/{id}", itemId))
             .andExpect(status().isNotFound());
     }
 
     @Test
     void deleteItem_Unauthorized() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .delete(String.format("/items/%s", itemId)))
+                .delete("/items/{id}", itemId))
             .andExpect(status().isUnauthorized());
     }
 
