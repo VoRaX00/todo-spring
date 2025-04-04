@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TodoListController {
 
-    private final TodoListService listService;
+    private final TodoListService todoListService;
 
     private final TodoListMapper todoListMapper;
 
@@ -34,27 +34,29 @@ public class TodoListController {
     }
 
     @PostMapping
-    public Long createList(@RequestBody TodoListCreateDto listCreateDto) {
+    public ResponseEntity<?> createList(@RequestBody TodoListCreateDto listCreateDto) {
         var userDetails = getAuthenticatedUser();
         var todoList = todoListMapper.toModel(listCreateDto);
         todoList.setUser(User.builder().id(userDetails.getId()).build());
-        return listService.save(todoList);
+        var todoListId = todoListService.save(todoList);
+        return new ResponseEntity<>(todoListId, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<TodoListGetDto> findByUserId() {
+    public ResponseEntity<?> findByUserId() {
         var userDetails = getAuthenticatedUser();
-        var lists = listService.findByUserId(userDetails.getId());
-        return lists.stream()
+        var lists = todoListService.findByUserId(userDetails.getId());
+        var result =  lists.stream()
             .map(todoListMapper::toGetDto)
             .toList();
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public TodoListGetDto findById(@PathVariable Long id) {
+    public ResponseEntity<?> findById(@PathVariable Long id) {
         var userDetails = getAuthenticatedUser();
-        var list = listService.findByIdAndUserId(id, userDetails.getId());
-        return todoListMapper.toGetDto(list);
+        var list = todoListService.findByIdAndUserId(id, userDetails.getId());
+        return new ResponseEntity<>(todoListMapper.toGetDto(list), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -65,7 +67,7 @@ public class TodoListController {
         var userDetails = getAuthenticatedUser();
         var todoList = todoListMapper.toModel(todoListUpdateDto);
         todoList.setId(id);
-        listService.update(todoList, userDetails.getId());
+        todoListService.update(todoList, userDetails.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -78,14 +80,14 @@ public class TodoListController {
         var item = itemMapper.toModel(itemCreateDto);
         item.setList(TodoList.builder()
             .id(id).build());
-        listService.addItem(item, userDetails.getId());
+        todoListService.addItem(item, userDetails.getId());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}/items")
     public List<ItemGetDto> getItemsByList(@PathVariable Long id) {
         var userDetails = getAuthenticatedUser();
-        var items = listService.getItems(id, userDetails.getId());
+        var items = todoListService.getItems(id, userDetails.getId());
         return items.stream()
             .map(itemMapper::toItemGetDto)
             .toList();
