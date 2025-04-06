@@ -22,7 +22,7 @@ import org.junit.jupiter.api.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AuthControllerTest {
+class AuthControllerTest {
 
     @MockBean
     private UserService userService;

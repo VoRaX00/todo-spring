@@ -27,7 +27,7 @@ import org.junit.jupiter.api.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TodoListControllerTest {
+class TodoListControllerTest {
 
     @MockBean
     private TodoListService todoListService;
