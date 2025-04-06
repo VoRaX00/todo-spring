@@ -3,8 +3,7 @@ package org.example.todoapp.services.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.todoapp.dto.*;
-import org.example.todoapp.exceptions.ConflictException;
-import org.example.todoapp.exceptions.InternalServerException;
+import org.example.todoapp.exceptions.*;
 import org.example.todoapp.mappers.*;
 import org.example.todoapp.models.User;
 import org.example.todoapp.models.UserDetailsImpl;
@@ -22,46 +21,47 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
 
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+    private final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        var user = findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", email)));
+        var user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException(String.format(
+                "User %s not found",
+                email)));
         return UserDetailsImpl.build(user);
     }
 
     @Override
+    @Transactional
     public void createUser(UserRegisterDto userRegisterDto) {
-        var user = userMapper.toModel(userRegisterDto);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        if (userExists(user.getEmail())) {
-            throw new ConflictException(String.format("User with email %s already exists", user.getEmail()));
+        if (userRepository.findByEmail(userRegisterDto.getEmail()).isPresent()) {
+            throw new ConflictException(String.format(
+                "User with email %s already exists",
+                userRegisterDto.getEmail()
+            ));
         }
 
+        var user = userMapper.toModel(userRegisterDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(List.of(roleRepository.findByName("USER")
-                .orElseThrow(() -> new InternalServerException("Role not found"))));
+            .orElseThrow(() -> new InternalServerException("Role not found"))));
         userRepository.save(user);
-    }
-
-    private boolean userExists(String email) {
-        var user = userRepository.findByEmail(email);
-        return user.isPresent();
     }
 
     @Override
     public Long findUserIdByEmail(String email) {
         return userRepository.findByEmail(email)
             .map(User::getId)
-            .orElseThrow(() -> new InternalServerException("User not found"));
+            .orElseThrow(() -> new NotFoundException("User not found"));
     }
+
 }
