@@ -1,4 +1,4 @@
-package org.example.todoapp.controllers;
+package org.example.todoapp.services;
 
 import java.util.*;
 
